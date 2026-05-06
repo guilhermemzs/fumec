@@ -1,0 +1,2639 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Projeto de extensão em Engenharia Civil da Universidade FUMEC sobre Engenharia Diagnóstica aplicada à avaliação de danos estruturais em pontos de acessibilidade." />
+  <title>Engenharia Diagnóstica | Acessibilidade | FUMEC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ==============================
+       CSS CUSTOM PROPERTIES
+    ============================== */
+    :root {
+      --navy:        #172431;
+      --navy-2:      #223446;
+      --navy-3:      #1a2d3d;
+      --red:         #d22f22;
+      --red-soft:    #f4c2bd;
+      --gold:        #d6a23a;
+      --gold-light:  #f0d080;
+      --white:       #ffffff;
+      --bg:          #f7f8f6;
+      --muted:       #d9dedc;
+      --steel:       #5e6d78;
+      --blue:        #08a6da;
+      --blue-dark:   #0674a0;
+
+      --serif: 'DM Serif Display', Georgia, serif;
+      --sans:  'DM Sans', system-ui, sans-serif;
+
+      --radius: 4px;
+      --radius-lg: 12px;
+      --shadow: 0 4px 24px rgba(23,36,49,0.10);
+      --shadow-lg: 0 12px 48px rgba(23,36,49,0.18);
+
+      --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ==============================
+       RESET & BASE
+    ============================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--navy);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    img { max-width: 100%; display: block; }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    ul { list-style: none; }
+
+    section { position: relative; }
+
+    /* ==============================
+       UTILITY CLASSES
+    ============================== */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 2px;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(1.9rem, 4vw, 2.8rem);
+      line-height: 1.2;
+      color: var(--navy);
+    }
+
+    .section-title.light { color: var(--white); }
+
+    .section-intro {
+      font-size: 1.05rem;
+      color: var(--steel);
+      max-width: 640px;
+      margin-top: 14px;
+    }
+
+    .section-intro.light { color: rgba(255,255,255,0.72); }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 2px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .tag-red  { background: var(--red); color: var(--white); }
+    .tag-gold { background: var(--gold); color: var(--navy); }
+    .tag-blue { background: var(--blue); color: var(--white); }
+    .tag-navy { background: var(--navy); color: var(--white); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ==============================
+       TOPBAR
+    ============================== */
+    .topbar {
+      background: var(--red);
+      color: var(--white);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      padding: 8px 0;
+      text-align: center;
+    }
+
+    /* ==============================
+       HEADER / NAV
+    ============================== */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--navy);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      transition: box-shadow var(--transition);
+    }
+
+    .site-header.scrolled {
+      box-shadow: 0 4px 32px rgba(0,0,0,0.28);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 64px;
+      max-width: 1260px;
+      margin: 0 auto;
+    }
+
+    .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .logo-text strong {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      color: var(--white);
+      line-height: 1.1;
+    }
+
+    .logo-text span {
+      font-size: 0.65rem;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-links a {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.72);
+      padding: 6px 10px;
+      border-radius: var(--radius);
+      transition: color var(--transition), background var(--transition);
+      letter-spacing: 0.03em;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--white);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .nav-links a.active {
+      color: var(--gold);
+    }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: var(--radius);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all var(--transition);
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--red);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background: #b82519;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--white);
+      border: 1.5px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .btn-gold {
+      background: var(--gold);
+      color: var(--navy);
+    }
+
+    .btn-gold:hover {
+      background: var(--gold-light);
+      transform: translateY(-1px);
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--white);
+      transition: all 0.3s;
+    }
+
+    /* ==============================
+       MOBILE NAV DRAWER
+    ============================== */
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: min(320px, 90vw);
+      height: 100vh;
+      background: var(--navy-2);
+      z-index: 200;
+      flex-direction: column;
+      padding: 80px 32px 40px;
+      transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: -8px 0 48px rgba(0,0,0,0.4);
+    }
+
+    .nav-drawer.open { right: 0; }
+
+    .nav-drawer a {
+      color: rgba(255,255,255,0.82);
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      font-size: 1rem;
+      font-weight: 400;
+      transition: color var(--transition);
+    }
+
+    .nav-drawer a:hover { color: var(--gold); }
+
+    .drawer-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: var(--white);
+      font-size: 1.5rem;
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 190;
+    }
+
+    .drawer-overlay.open { display: block; }
+
+    /* ==============================
+       HERO SECTION
+    ============================== */
+    #inicio {
+      background: var(--navy);
+      overflow: hidden;
+      min-height: 92vh;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      padding: 80px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero-content { position: relative; z-index: 2; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(214,162,58,0.12);
+      border: 1px solid rgba(214,162,58,0.3);
+      border-radius: 2px;
+      padding: 6px 14px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      line-height: 1.12;
+      color: var(--white);
+      margin-bottom: 20px;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.62);
+      line-height: 1.75;
+      max-width: 520px;
+      margin-bottom: 36px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .hero-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .hero-meta-item span:first-child {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .hero-meta-item span:last-child {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.82);
+    }
+
+    /* Hero Visual */
+    .hero-visual {
+      position: relative;
+    }
+
+    .blueprint-canvas {
+      width: 100%;
+      aspect-ratio: 1 / 1.05;
+      position: relative;
+    }
+
+    /* Blueprint background */
+    .blueprint-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(8,166,218,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(8,166,218,0.06) 1px, transparent 1px);
+      background-size: 32px 32px;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(8,166,218,0.15);
+    }
+
+    /* ==============================
+       HERO SVG ILLUSTRATION
+    ============================== */
+    .hero-svg {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ==============================
+       OVERVIEW / PILARES
+    ============================== */
+    #projeto {
+      padding: 100px 0;
+      background: var(--bg);
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .overview-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .pilar-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      border: 1px solid var(--muted);
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pilar-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform var(--transition);
+    }
+
+    .pilar-card:hover::before { transform: scaleX(1); }
+
+    .pilar-card:hover {
+      border-color: rgba(214,162,58,0.3);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
+
+    .pilar-icon {
+      width: 44px;
+      height: 44px;
+      margin-bottom: 16px;
+      color: var(--navy);
+    }
+
+    .pilar-card h3 {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+      color: var(--navy);
+    }
+
+    .pilar-card p {
+      font-size: 0.88rem;
+      color: var(--steel);
+      line-height: 1.65;
+    }
+
+    .overview-text h2 { margin-bottom: 20px; }
+
+    .overview-text p {
+      color: var(--steel);
+      margin-bottom: 16px;
+      font-size: 1rem;
+    }
+
+    .stat-row {
+      display: flex;
+      gap: 32px;
+      margin-top: 32px;
+      padding-top: 32px;
+      border-top: 1px solid var(--muted);
+    }
+
+    .stat-item strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: 2.2rem;
+      color: var(--red);
+      line-height: 1;
+    }
+
+    .stat-item span {
+      font-size: 0.8rem;
+      color: var(--steel);
+      font-weight: 500;
+    }
+
+    /* ==============================
+       DIAGNOSTIC ENGINEERING
+    ============================== */
+    #diagnostico {
+      padding: 100px 0;
+      background: var(--navy);
+      overflow: hidden;
+    }
+
+    .diag-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .diag-text .section-intro {
+      color: rgba(255,255,255,0.62);
+      margin-bottom: 32px;
+    }
+
+    .diag-quote {
+      background: rgba(214,162,58,0.1);
+      border-left: 3px solid var(--gold);
+      padding: 20px 24px;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 28px 0;
+      color: rgba(255,255,255,0.82);
+      font-size: 0.95rem;
+      font-style: italic;
+      line-height: 1.75;
+    }
+
+    /* Process steps */
+    .process-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+
+    .process-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      padding: 20px 0;
+      position: relative;
+    }
+
+    .process-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 60px;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, rgba(214,162,58,0.5), rgba(214,162,58,0.05));
+    }
+
+    .step-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(214,162,58,0.12);
+      border: 2px solid rgba(214,162,58,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--gold);
+      flex-shrink: 0;
+      transition: all var(--transition);
+    }
+
+    .process-step:hover .step-num {
+      background: var(--gold);
+      color: var(--navy);
+      border-color: var(--gold);
+    }
+
+    .step-content h4 {
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+
+    .step-content p {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* ==============================
+       ACCESSIBILITY POINTS
+    ============================== */
+    #acessibilidade {
+      padding: 100px 0;
+      background: var(--bg);
+    }
+
+    .access-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .access-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .access-card {
+      background: var(--white);
+      border: 1px solid var(--muted);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all var(--transition);
+    }
+
+    .access-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+      border-color: rgba(8,166,218,0.3);
+    }
+
+    .access-card-header {
+      padding: 24px 24px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid var(--muted);
+    }
+
+    .access-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius);
+      background: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .access-card-icon svg {
+      width: 24px;
+      height: 24px;
+      color: var(--gold);
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .access-card-title {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      color: var(--navy);
+    }
+
+    .access-card-body {
+      padding: 20px 24px;
+    }
+
+    .problem-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .problem-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.84rem;
+      color: var(--steel);
+      padding: 6px 10px;
+      border-radius: var(--radius);
+      background: var(--bg);
+      transition: background var(--transition);
+    }
+
+    .problem-item:hover { background: var(--muted); }
+
+    .problem-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+      flex-shrink: 0;
+    }
+
+    /* ==============================
+       PATHOLOGIES — DARK SECTION
+    ============================== */
+    #patologias {
+      padding: 100px 0;
+      background: var(--navy-3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #patologias::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 40px,
+          rgba(255,255,255,0.015) 40px,
+          rgba(255,255,255,0.015) 41px
+        );
+      pointer-events: none;
+    }
+
+    .path-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .path-header .section-intro {
+      margin: 14px auto 0;
+    }
+
+    .path-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .path-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      transition: all var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .path-card::after {
+      content: attr(data-num);
+      position: absolute;
+      right: -8px;
+      bottom: -20px;
+      font-family: var(--serif);
+      font-size: 6rem;
+      color: rgba(255,255,255,0.025);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .path-card:hover {
+      background: rgba(210,47,34,0.08);
+      border-color: rgba(210,47,34,0.25);
+      transform: translateY(-3px);
+    }
+
+    .path-icon {
+      width: 36px;
+      height: 36px;
+      margin-bottom: 16px;
+      color: var(--red);
+    }
+
+    .path-card h3 {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .path-card p {
+      font-size: 0.83rem;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.65;
+    }
+
+    /* ==============================
+       INSPECTION CHECKLIST
+    ============================== */
+    #checklist-section {
+      padding: 100px 0;
+      background: var(--bg);
+    }
+
+    .checklist-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 72px;
+      align-items: start;
+    }
+
+    .checklist-sticky {
+      position: sticky;
+      top: 90px;
+    }
+
+    .checklist-info p {
+      color: var(--steel);
+      font-size: 0.95rem;
+      line-height: 1.75;
+      margin-top: 16px;
+    }
+
+    .checklist-card {
+      background: var(--white);
+      border: 1px solid var(--muted);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .checklist-card-header {
+      background: var(--navy);
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .checklist-card-header span {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--white);
+    }
+
+    .checklist-card-header svg {
+      width: 20px;
+      height: 20px;
+      color: var(--gold);
+    }
+
+    .checklist-items {
+      padding: 8px 0;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 28px;
+      border-bottom: 1px solid var(--muted);
+      cursor: pointer;
+      transition: background var(--transition);
+      user-select: none;
+    }
+
+    .check-item:last-child { border-bottom: none; }
+
+    .check-item:hover { background: #f0f4f8; }
+
+    .check-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--navy);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .check-item label {
+      font-size: 0.88rem;
+      color: var(--navy);
+      cursor: pointer;
+      line-height: 1.55;
+    }
+
+    .checklist-footer {
+      padding: 20px 28px;
+      background: var(--bg);
+      border-top: 1px solid var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .progress-text {
+      font-size: 0.78rem;
+      color: var(--steel);
+      font-weight: 500;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 5px;
+      background: var(--muted);
+      border-radius: 10px;
+      margin: 0 16px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--navy);
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* ==============================
+       METHODOLOGY / TIMELINE
+    ============================== */
+    #metodologia {
+      padding: 100px 0;
+      background: var(--navy);
+    }
+
+    .meto-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .meto-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .meto-step {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      transition: all var(--transition);
+      cursor: default;
+    }
+
+    .meto-step:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(214,162,58,0.25);
+    }
+
+    .meto-step-num {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      color: rgba(214,162,58,0.4);
+      width: 32px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .meto-step h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 2px;
+    }
+
+    .meto-step p {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.45);
+    }
+
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 32px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--gold), rgba(214,162,58,0.1));
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 36px;
+    }
+
+    .timeline-item:last-child { margin-bottom: 0; }
+
+    .timeline-dot {
+      position: absolute;
+      left: -32px;
+      top: 6px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--navy);
+      border: 2px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timeline-dot::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .timeline-month {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .timeline-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+
+    .timeline-desc {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.45);
+    }
+
+    /* ==============================
+       EDUCATIONAL MATERIAL
+    ============================== */
+    #material {
+      padding: 100px 0;
+      background: var(--bg);
+    }
+
+    .edu-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 72px;
+      align-items: center;
+    }
+
+    .edu-features {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    .edu-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px;
+      background: var(--white);
+      border: 1px solid var(--muted);
+      border-radius: var(--radius);
+      transition: all var(--transition);
+    }
+
+    .edu-feature:hover {
+      border-color: rgba(214,162,58,0.3);
+      transform: translateX(4px);
+    }
+
+    .edu-feature-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--navy);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--gold);
+    }
+
+    .edu-feature-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .edu-feature h4 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+
+    .edu-feature p {
+      font-size: 0.8rem;
+      color: var(--steel);
+    }
+
+    /* Folder mockup */
+    .folder-mockup {
+      position: relative;
+      max-width: 400px;
+    }
+
+    .folder-outer {
+      background: var(--navy-2);
+      border-radius: 12px;
+      padding: 4px;
+      box-shadow: var(--shadow-lg), 0 0 0 1px rgba(214,162,58,0.2);
+      transform: perspective(800px) rotateY(-8deg) rotateX(2deg);
+      transition: transform 0.5s ease;
+    }
+
+    .folder-outer:hover {
+      transform: perspective(800px) rotateY(-3deg) rotateX(0deg);
+    }
+
+    .folder-cover {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-3) 100%);
+      border-radius: 10px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .folder-cover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(8,166,218,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(8,166,218,0.05) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    .folder-cover::after {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      right: -40px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(210,47,34,0.12), transparent 70%);
+    }
+
+    .folder-top {
+      position: relative;
+      z-index: 2;
+    }
+
+    .folder-logo-text {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+
+    .folder-divider {
+      width: 36px;
+      height: 2px;
+      background: var(--red);
+      margin: 12px 0 16px;
+    }
+
+    .folder-title {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      color: var(--white);
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+
+    .folder-sub {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .folder-bottom {
+      position: relative;
+      z-index: 2;
+    }
+
+    .folder-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 20px;
+    }
+
+    .folder-tag {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.6);
+      font-size: 0.6rem;
+      padding: 3px 8px;
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+      font-weight: 500;
+    }
+
+    .folder-accent-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--red) 0%, var(--gold) 60%, var(--blue) 100%);
+      border-radius: 0 0 10px 10px;
+    }
+
+    /* ==============================
+       REFERENCES
+    ============================== */
+    #referencias {
+      padding: 80px 0;
+      background: var(--bg);
+      border-top: 1px solid var(--muted);
+    }
+
+    .ref-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+      margin-top: 40px;
+    }
+
+    .ref-card {
+      background: var(--white);
+      border: 1px solid var(--muted);
+      border-left: 3px solid var(--navy);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      transition: all var(--transition);
+    }
+
+    .ref-card:hover {
+      border-left-color: var(--gold);
+      transform: translateX(4px);
+    }
+
+    .ref-code {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .ref-card p {
+      font-size: 0.85rem;
+      color: var(--steel);
+      line-height: 1.55;
+    }
+
+    /* ==============================
+       CONTACT / FOOTER
+    ============================== */
+    #contato {
+      background: var(--navy);
+      padding: 80px 0 0;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 60px;
+      padding-bottom: 60px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .contact-brand strong {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      color: var(--white);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .contact-brand p {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.75;
+      max-width: 280px;
+    }
+
+    .contact-col h4 {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+
+    .contact-col ul {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .contact-col ul li {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.5;
+    }
+
+    .contact-col a {
+      color: rgba(255,255,255,0.55);
+      transition: color var(--transition);
+    }
+
+    .contact-col a:hover { color: var(--gold); }
+
+    .footer-bottom {
+      padding: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .footer-bottom p {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    .footer-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* ==============================
+       BACK TO TOP
+    ============================== */
+    #back-to-top {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      width: 44px;
+      height: 44px;
+      background: var(--navy);
+      border: 2px solid rgba(214,162,58,0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: all var(--transition);
+      z-index: 90;
+      color: var(--gold);
+    }
+
+    #back-to-top.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    #back-to-top:hover {
+      background: var(--gold);
+      color: var(--navy);
+      border-color: var(--gold);
+      transform: translateY(-3px);
+    }
+
+    /* ==============================
+       DECORATIVE DIVIDERS
+    ============================== */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--muted), transparent);
+    }
+
+    .section-divider.dark {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    }
+
+    /* ==============================
+       RESPONSIVE
+    ============================== */
+    @media (max-width: 1024px) {
+      .hero-inner,
+      .overview-grid,
+      .diag-grid,
+      .meto-grid,
+      .edu-layout,
+      .checklist-layout,
+      .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .hero-visual { order: -1; }
+      .blueprint-canvas { max-height: 340px; }
+      .folder-outer { transform: none; }
+      .checklist-sticky { position: static; }
+
+      .grid-4 { grid-template-columns: 1fr 1fr; }
+
+      .overview-card-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+      .nav-drawer { display: flex; }
+
+      .hero-inner { padding: 60px 20px; min-height: auto; }
+      .hero-title { font-size: 2rem; }
+
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .overview-card-grid { grid-template-columns: 1fr; }
+      .path-grid { grid-template-columns: 1fr 1fr; }
+      .access-cards { grid-template-columns: 1fr; }
+      .ref-grid { grid-template-columns: 1fr; }
+
+      .contact-grid { grid-template-columns: 1fr; gap: 32px; }
+
+      .stat-row { gap: 20px; }
+
+      section { padding: 64px 0 !important; }
+
+      .hero-actions { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+    }
+
+    @media (max-width: 480px) {
+      .path-grid { grid-template-columns: 1fr; }
+      .hero-meta { flex-wrap: wrap; gap: 16px; }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar" role="banner">
+  Universidade FUMEC &nbsp;·&nbsp; Engenharia Civil &nbsp;·&nbsp; Projeto de Extensão 2025
+</div>
+
+<!-- HEADER -->
+<header class="site-header" role="banner">
+  <div class="header-inner">
+    <div class="logo-block">
+      <!-- Logo FUMEC PNG -->
+      <img src="logo-fumec.png" alt="Logo FUMEC" class="logo-icon" />
+      <div class="logo-text">
+        <strong>FUMEC</strong>
+        <span>Engenharia Civil</span>
+      </div>
+    </div>
+
+    <nav class="nav-links" aria-label="Navegação principal">
+      <a href="#inicio">Início</a>
+      <a href="#projeto">Projeto</a>
+      <a href="#diagnostico">Diagnóstico</a>
+      <a href="#acessibilidade">Acessibilidade</a>
+      <a href="#patologias">Patologias</a>
+      <a href="#metodologia">Metodologia</a>
+      <a href="#material">Material Educativo</a>
+      <a href="#referencias">Referências</a>
+      <a href="#contato">Contato</a>
+    </nav>
+
+    <div class="nav-cta">
+      <a href="mailto:engenhariadiagnostica@gmail.com" class="btn btn-primary" style="font-size:0.75rem;padding:8px 16px;">Contato</a>
+    </div>
+
+    <button class="hamburger" aria-label="Abrir menu" aria-expanded="false" id="hamburger-btn">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- MOBILE DRAWER -->
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<nav class="nav-drawer" id="nav-drawer" aria-label="Menu mobile">
+  <button class="drawer-close" id="drawer-close" aria-label="Fechar menu">✕</button>
+  <a href="#inicio" class="drawer-link">Início</a>
+  <a href="#projeto" class="drawer-link">Projeto</a>
+  <a href="#diagnostico" class="drawer-link">Diagnóstico</a>
+  <a href="#acessibilidade" class="drawer-link">Acessibilidade</a>
+  <a href="#patologias" class="drawer-link">Patologias</a>
+  <a href="#metodologia" class="drawer-link">Metodologia</a>
+  <a href="#material" class="drawer-link">Material Educativo</a>
+  <a href="#referencias" class="drawer-link">Referências</a>
+  <a href="#contato" class="drawer-link">Contato</a>
+</nav>
+
+<!-- ==============================
+     HERO
+============================== -->
+<section id="inicio" aria-label="Início">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-badge" aria-label="Projeto de Extensão Universitária">
+        Projeto de Extensão Universitária
+      </div>
+
+      <h1 class="hero-title">
+        Engenharia Diagnóstica<br/>
+        aplicada à <em>acessibilidade</em>
+      </h1>
+
+      <p class="hero-subtitle">
+        Avaliação de danos estruturais em rampas, pisos táteis, corrimãos, escadas e rotas acessíveis para promover segurança, autonomia e inclusão.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#projeto" class="btn btn-primary">Conhecer o projeto</a>
+        <a href="#acessibilidade" class="btn btn-outline">Ver pontos de inspeção</a>
+      </div>
+
+      <div class="hero-meta">
+        <div class="hero-meta-item">
+          <span>Universidade</span>
+          <span>FUMEC</span>
+        </div>
+        <div style="width:1px;height:36px;background:rgba(255,255,255,0.12)"></div>
+        <div class="hero-meta-item">
+          <span>Curso</span>
+          <span>Engenharia Civil</span>
+        </div>
+        <div style="width:1px;height:36px;background:rgba(255,255,255,0.12)"></div>
+        <div class="hero-meta-item">
+          <span>Tipo</span>
+          <span>Extensão Universitária</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO VISUAL -->
+    <div class="hero-visual" aria-hidden="true">
+      <div class="blueprint-canvas">
+        <div class="blueprint-bg"></div>
+        <!-- SVG ILLUSTRATION -->
+        <svg class="hero-svg" viewBox="0 0 480 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- building silhouette -->
+          <rect x="60" y="120" width="160" height="240" rx="4" fill="rgba(34,52,70,0.95)" stroke="rgba(8,166,218,0.3)" stroke-width="1"/>
+          <rect x="80" y="140" width="40" height="50" rx="2" fill="rgba(8,166,218,0.12)" stroke="rgba(8,166,218,0.25)" stroke-width="1"/>
+          <rect x="140" y="140" width="40" height="50" rx="2" fill="rgba(8,166,218,0.12)" stroke="rgba(8,166,218,0.25)" stroke-width="1"/>
+          <rect x="80" y="210" width="40" height="50" rx="2" fill="rgba(8,166,218,0.12)" stroke="rgba(8,166,218,0.25)" stroke-width="1"/>
+          <rect x="140" y="210" width="40" height="50" rx="2" fill="rgba(8,166,218,0.08)" stroke="rgba(8,166,218,0.18)" stroke-width="1"/>
+          <!-- door -->
+          <rect x="105" y="300" width="30" height="60" rx="2" fill="rgba(214,162,58,0.12)" stroke="rgba(214,162,58,0.4)" stroke-width="1.5"/>
+          <circle cx="131" cy="330" r="2.5" fill="#d6a23a"/>
+          <!-- ground line -->
+          <line x1="40" y1="360" x2="440" y2="360" stroke="rgba(8,166,218,0.18)" stroke-width="1" stroke-dasharray="6,4"/>
+
+          <!-- RAMP -->
+          <path d="M220 360 L320 300 L320 360 Z" fill="rgba(214,162,58,0.08)" stroke="rgba(214,162,58,0.4)" stroke-width="1.5"/>
+          <line x1="220" y1="360" x2="320" y2="360" stroke="rgba(214,162,58,0.5)" stroke-width="2"/>
+          <!-- ramp handrail -->
+          <path d="M222 356 L322 296" stroke="rgba(8,166,218,0.6)" stroke-width="2" stroke-linecap="round"/>
+          <path d="M230 360 L330 300" stroke="rgba(8,166,218,0.4)" stroke-width="2" stroke-linecap="round"/>
+          <!-- ramp label -->
+          <rect x="248" y="320" width="50" height="18" rx="2" fill="rgba(23,36,49,0.9)" stroke="rgba(214,162,58,0.4)" stroke-width="1"/>
+          <text x="273" y="332" font-family="DM Sans, sans-serif" font-size="7" fill="#d6a23a" text-anchor="middle" font-weight="600">RAMPA</text>
+
+          <!-- tactile path markers -->
+          <rect x="80" y="358" width="8" height="8" rx="1" fill="rgba(214,162,58,0.4)" stroke="rgba(214,162,58,0.6)" stroke-width="1"/>
+          <rect x="96" y="358" width="8" height="8" rx="1" fill="rgba(214,162,58,0.4)" stroke="rgba(214,162,58,0.6)" stroke-width="1"/>
+          <rect x="112" y="358" width="8" height="8" rx="1" fill="rgba(214,162,58,0.4)" stroke="rgba(214,162,58,0.6)" stroke-width="1"/>
+          <rect x="128" y="358" width="8" height="8" rx="1" fill="rgba(214,162,58,0.25)" stroke="rgba(214,162,58,0.35)" stroke-width="1"/>
+          <rect x="144" y="358" width="8" height="8" rx="1" fill="rgba(210,47,34,0.4)" stroke="rgba(210,47,34,0.6)" stroke-width="1"/>
+          <!-- damage alert -->
+          <circle cx="148" cy="362" r="12" fill="none" stroke="rgba(210,47,34,0.5)" stroke-width="1.5" stroke-dasharray="3,2"/>
+          <text x="148" y="380" font-family="DM Sans, sans-serif" font-size="6" fill="#d22f22" text-anchor="middle" font-weight="600">DANO</text>
+
+          <!-- INSPECTION ANNOTATIONS -->
+          <!-- Label: Corrimão -->
+          <line x1="330" y1="296" x2="380" y2="256" stroke="rgba(8,166,218,0.45)" stroke-width="1" stroke-dasharray="4,2"/>
+          <rect x="342" y="240" width="80" height="24" rx="3" fill="rgba(8,106,138,0.7)" stroke="rgba(8,166,218,0.4)" stroke-width="1"/>
+          <text x="382" y="255" font-family="DM Sans, sans-serif" font-size="7.5" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-weight="500">CORRIMÃO</text>
+
+          <!-- Label: Piso Tátil -->
+          <line x1="128" y1="358" x2="100" y2="400" stroke="rgba(214,162,58,0.4)" stroke-width="1" stroke-dasharray="4,2"/>
+          <rect x="50" y="400" width="100" height="24" rx="3" fill="rgba(100,80,20,0.7)" stroke="rgba(214,162,58,0.4)" stroke-width="1"/>
+          <text x="100" y="415" font-family="DM Sans, sans-serif" font-size="7.5" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-weight="500">PISO TÁTIL</text>
+
+          <!-- Right section: Inspection card -->
+          <rect x="340" y="310" width="100" height="80" rx="6" fill="rgba(23,36,49,0.95)" stroke="rgba(214,162,58,0.3)" stroke-width="1"/>
+          <rect x="340" y="310" width="100" height="20" rx="6" fill="rgba(210,47,34,0.7)"/>
+          <rect x="340" y="322" width="100" height="8" fill="transparent"/>
+          <text x="390" y="323" font-family="DM Sans, sans-serif" font-size="7" fill="rgba(255,255,255,0.9)" text-anchor="middle" font-weight="700" letter-spacing="0.05em">INSPEÇÃO</text>
+          <!-- Check items inside card -->
+          <circle cx="353" cy="343" r="3" stroke="rgba(8,166,218,0.7)" stroke-width="1" fill="rgba(8,166,218,0.2)"/>
+          <line x1="359" y1="343" x2="430" y2="343" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+          <circle cx="353" cy="355" r="3" stroke="rgba(214,162,58,0.7)" stroke-width="1" fill="rgba(214,162,58,0.2)"/>
+          <line x1="359" y1="355" x2="430" y2="355" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+          <circle cx="353" cy="367" r="3" stroke="rgba(210,47,34,0.7)" stroke-width="1" fill="rgba(210,47,34,0.2)"/>
+          <line x1="359" y1="367" x2="420" y2="367" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+          <text x="353" y="393" font-family="DM Sans, sans-serif" font-size="6" fill="rgba(214,162,58,0.8)" font-weight="600" text-anchor="middle">NBR 9050</text>
+
+          <!-- vertical ruler -->
+          <line x1="455" y1="120" x2="455" y2="360" stroke="rgba(8,166,218,0.2)" stroke-width="1"/>
+          <line x1="450" y1="120" x2="460" y2="120" stroke="rgba(8,166,218,0.3)" stroke-width="1"/>
+          <line x1="450" y1="240" x2="460" y2="240" stroke="rgba(8,166,218,0.3)" stroke-width="1"/>
+          <line x1="450" y1="360" x2="460" y2="360" stroke="rgba(8,166,218,0.3)" stroke-width="1"/>
+          <text x="465" y="244" font-family="DM Sans, sans-serif" font-size="6" fill="rgba(8,166,218,0.5)" text-anchor="start">H=6m</text>
+
+          <!-- floating tag top right -->
+          <rect x="350" y="120" width="90" height="30" rx="4" fill="rgba(210,47,34,0.85)"/>
+          <text x="395" y="138" font-family="DM Sans, sans-serif" font-size="7.5" fill="white" text-anchor="middle" font-weight="600">DIAGNÓSTICO</text>
+
+          <!-- blueprint corner marks -->
+          <path d="M40 100 L40 80 L60 80" stroke="rgba(8,166,218,0.3)" stroke-width="1.5" fill="none"/>
+          <path d="M440 100 L440 80 L420 80" stroke="rgba(8,166,218,0.3)" stroke-width="1.5" fill="none"/>
+          <path d="M40 420 L40 440 L60 440" stroke="rgba(8,166,218,0.3)" stroke-width="1.5" fill="none"/>
+          <path d="M440 420 L440 440 L420 440" stroke="rgba(8,166,218,0.3)" stroke-width="1.5" fill="none"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     PROJETO / PILARES
+============================== -->
+<section id="projeto" aria-label="Sobre o projeto">
+  <div class="container">
+    <div class="overview-grid">
+      <div class="overview-text reveal">
+        <div class="section-label">Sobre o Projeto</div>
+        <h2 class="section-title">Acessibilidade é segurança, dignidade e inclusão</h2>
+        <p>A acessibilidade não é apenas uma exigência legal. É uma questão de segurança, dignidade, autonomia e inclusão. Edificações com danos estruturais, falta de manutenção e ausência de inspeção comprometem o uso seguro dos espaços por pessoas com deficiência, idosos e crianças.</p>
+        <p>Este projeto de extensão da Universidade FUMEC conecta o conhecimento técnico da Engenharia Civil com a realidade dos espaços públicos, promovendo conscientização e educação sobre a importância da inspeção e do diagnóstico preventivo.</p>
+
+        <div class="stat-row">
+          <div class="stat-item">
+            <strong>8+</strong>
+            <span>pontos de acessibilidade analisados</span>
+          </div>
+          <div class="stat-item">
+            <strong>NBR 9050</strong>
+            <span>norma de referência</span>
+          </div>
+          <div class="stat-item">
+            <strong>2025</strong>
+            <span>ano de realização</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="overview-card-grid">
+        <div class="pilar-card reveal" style="transition-delay:0.1s">
+          <svg class="pilar-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 4L4 14v16l18 10 18-10V14L22 4z"/>
+            <path d="M22 4v26M4 14l18 10 18-10"/>
+          </svg>
+          <h3>Segurança</h3>
+          <p>Identificar danos antes que se tornem riscos reais para usuários dos espaços construídos.</p>
+        </div>
+        <div class="pilar-card reveal" style="transition-delay:0.15s">
+          <svg class="pilar-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="22" cy="12" r="6"/>
+            <path d="M12 38c0-5.52 4.48-10 10-10s10 4.48 10 10"/>
+            <path d="M4 24h4M36 24h4"/>
+          </svg>
+          <h3>Inclusão</h3>
+          <p>Garantir que todos possam usar os espaços com autonomia, dignidade e segurança plena.</p>
+        </div>
+        <div class="pilar-card reveal" style="transition-delay:0.2s">
+          <svg class="pilar-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="22" cy="22" r="16"/>
+            <path d="M22 14v8l6 4"/>
+          </svg>
+          <h3>Prevenção</h3>
+          <p>O diagnóstico precoce reduz custos, evita acidentes e prolonga a vida útil das edificações.</p>
+        </div>
+        <div class="pilar-card reveal" style="transition-delay:0.25s">
+          <svg class="pilar-icon" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="8" y="8" width="28" height="28" rx="3"/>
+            <path d="M14 22l6 6 10-12"/>
+          </svg>
+          <h3>Responsabilidade Técnica</h3>
+          <p>O engenheiro tem papel fundamental na avaliação, orientação e correção dos problemas encontrados.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ==============================
+     DIAGNOSTIC ENGINEERING
+============================== -->
+<section id="diagnostico" aria-label="Engenharia Diagnóstica">
+  <div class="container">
+    <div class="diag-grid">
+      <div class="diag-text reveal">
+        <div class="section-label" style="color:var(--gold)">Área Técnica</div>
+        <h2 class="section-title light">O que é Engenharia Diagnóstica?</h2>
+
+        <blockquote class="diag-quote">
+          "Engenharia Diagnóstica é a área da engenharia voltada à investigação técnica das condições de uma edificação. Ela busca identificar manifestações patológicas, compreender suas causas, avaliar riscos e orientar medidas corretivas ou preventivas."
+        </blockquote>
+
+        <p class="section-intro" style="color:rgba(255,255,255,0.55)">
+          Por meio de inspeções sistemáticas, ensaios, análise de documentação e observação técnica, o engenheiro diagnóstico é capaz de compreender o estado real da edificação e propor as intervenções necessárias para garantir segurança e funcionalidade.
+        </p>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.15s">
+        <div class="section-label" style="color:var(--gold);margin-bottom:24px">Processo de Diagnóstico</div>
+        <div class="process-steps">
+          <div class="process-step">
+            <div class="step-num">01</div>
+            <div class="step-content">
+              <h4>Inspeção</h4>
+              <p>Visita técnica presencial ao local para observação e identificação de manifestações visíveis.</p>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="step-num">02</div>
+            <div class="step-content">
+              <h4>Registro</h4>
+              <p>Documentação fotográfica e escrita de todos os danos, anomalias e não conformidades encontradas.</p>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="step-num">03</div>
+            <div class="step-content">
+              <h4>Análise</h4>
+              <p>Estudo técnico das causas, mecanismos de degradação e nível de comprometimento estrutural.</p>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="step-num">04</div>
+            <div class="step-content">
+              <h4>Diagnóstico</h4>
+              <p>Conclusão técnica sobre o estado da edificação, grau de urgência e categorização dos problemas.</p>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="step-num">05</div>
+            <div class="step-content">
+              <h4>Orientação Técnica</h4>
+              <p>Indicação das intervenções corretivas ou preventivas necessárias com priorização e plano de ação.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     ACCESSIBILITY POINTS
+============================== -->
+<section id="acessibilidade" aria-label="Pontos de acessibilidade">
+  <div class="container">
+    <div class="access-header">
+      <div>
+        <div class="section-label">Pontos de Análise</div>
+        <h2 class="section-title">Elementos de acessibilidade inspecionados</h2>
+      </div>
+      <p class="section-intro" style="margin-top:0">Cada ponto de acesso pode apresentar danos específicos que comprometem a segurança e autonomia dos usuários.</p>
+    </div>
+
+    <div class="access-cards">
+      <!-- RAMPAS -->
+      <div class="access-card reveal">
+        <div class="access-card-header">
+          <div class="access-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 20L21 4M3 20h6M21 4v6"/></svg>
+          </div>
+          <h3 class="access-card-title">Rampas</h3>
+        </div>
+        <div class="access-card-body">
+          <ul class="problem-list" aria-label="Problemas comuns em rampas">
+            <li class="problem-item"><span class="problem-dot"></span>Inclinação inadequada acima de 8,33%</li>
+            <li class="problem-item"><span class="problem-dot"></span>Trincas e fissuras na superfície</li>
+            <li class="problem-item"><span class="problem-dot"></span>Desníveis e irregularidades no piso</li>
+            <li class="problem-item"><span class="problem-dot"></span>Ausência de corrimão bilateral</li>
+            <li class="problem-item"><span class="problem-dot"></span>Superfície escorregadia</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PISO TÁTIL -->
+      <div class="access-card reveal" style="transition-delay:0.08s">
+        <div class="access-card-header">
+          <div class="access-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="4" height="4" rx="0.5"/><rect x="10" y="3" width="4" height="4" rx="0.5"/><rect x="17" y="3" width="4" height="4" rx="0.5"/><rect x="3" y="10" width="4" height="4" rx="0.5"/><rect x="10" y="10" width="4" height="4" rx="0.5"/><rect x="17" y="10" width="4" height="4" rx="0.5"/><rect x="3" y="17" width="4" height="4" rx="0.5"/><rect x="10" y="17" width="4" height="4" rx="0.5"/><rect x="17" y="17" width="4" height="4" rx="0.5"/></svg>
+          </div>
+          <h3 class="access-card-title">Piso Tátil</h3>
+        </div>
+        <div class="access-card-body">
+          <ul class="problem-list" aria-label="Problemas comuns em piso tátil">
+            <li class="problem-item"><span class="problem-dot"></span>Piso tátil danificado ou quebrado</li>
+            <li class="problem-item"><span class="problem-dot"></span>Descontinuidade na rota tátil</li>
+            <li class="problem-item"><span class="problem-dot"></span>Obstáculos sobre o percurso</li>
+            <li class="problem-item"><span class="problem-dot"></span>Cor sem contraste com o entorno</li>
+            <li class="problem-item"><span class="problem-dot"></span>Ausência em áreas obrigatórias</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- CORRIMÃOS -->
+      <div class="access-card reveal" style="transition-delay:0.16s">
+        <div class="access-card-header">
+          <div class="access-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 8h16M7 8v10M17 8v10M4 18h16"/></svg>
+          </div>
+          <h3 class="access-card-title">Corrimãos</h3>
+        </div>
+        <div class="access-card-body">
+          <ul class="problem-list" aria-label="Problemas comuns em corrimãos">
+            <li class="problem-item"><span class="problem-dot"></span>Corrimãos soltos ou instáveis</li>
+            <li class="problem-item"><span class="problem-dot"></span>Altura inadequada (fora do padrão)</li>
+            <li class="problem-item"><span class="problem-dot"></span>Ausência em um ou ambos os lados</li>
+            <li class="problem-item"><span class="problem-dot"></span>Material deteriorado ou com ferrugem</li>
+            <li class="problem-item"><span class="problem-dot"></span>Sem extensão nas extremidades</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ESCADAS -->
+      <div class="access-card reveal" style="transition-delay:0.24s">
+        <div class="access-card-header">
+          <div class="access-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 20h4V16h4V12h4V8h4V4h2"/><path d="M3 20V4"/></svg>
+          </div>
+          <h3 class="access-card-title">Escadas</h3>
+        </div>
+        <div class="access-card-body">
+          <ul class="problem-list" aria-label="Problemas comuns em escadas">
+            <li class="problem-item"><span class="problem-dot"></span>Degraus irregulares ou desgastados</li>
+            <li class="problem-item"><span class="problem-dot"></span>Ausência de sinalização de borda</li>
+            <li class="problem-item"><span class="problem-dot"></span>Espelhos faltando ou quebrados</li>
+            <li class="problem-item"><span class="problem-dot"></span>Infiltrações nos degraus</li>
+            <li class="problem-item"><span class="problem-dot"></span>Iluminação insuficiente</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ROTAS ACESSÍVEIS -->
+      <div class="access-card reveal" style="transition-delay:0.32s">
+        <div class="access-card-header">
+          <div class="access-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 12h18M3 12l4-4M3 12l4 4M21 12l-4-4M21 12l-4 4"/></svg>
+          </div>
+          <h3 class="access-card-title">Rotas Acessíveis</h3>
+        </div>
+        <div class="access-card-body">
+          <ul class="problem-list" aria-label="Problemas comuns em rotas acessíveis">
+            <li class="problem-item"><span class="problem-dot"></span>Obstáculos fixos no percurso</li>
+            <li class="problem-item"><span class="problem-dot"></span>Largura insuficiente de circulação</li>
+            <li class="problem-item"><span class="problem-dot"></span>Piso irregular ou escorregadio</li>
+            <li class="problem-item"><span class="problem-dot"></span>Falta de espaço para manobra</li>
+            <li class="problem-item"><span class="problem-dot"></span>Rota descontinuada ou bloqueada</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SINALIZAÇÃO -->
+      <div class="access-card reveal" style="transition-delay:0.40s">
+        <div class="access-card-header">
+          <div class="access-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 3h18v12l-9 6-9-6V3z"/><path d="M12 3v18M8 7h8M8 11h6"/></svg>
+          </div>
+          <h3 class="access-card-title">Sinalização</h3>
+        </div>
+        <div class="access-card-body">
+          <ul class="problem-list" aria-label="Problemas comuns em sinalização">
+            <li class="problem-item"><span class="problem-dot"></span>Sinalização inexistente ou danificada</li>
+            <li class="problem-item"><span class="problem-dot"></span>Pictogramas sem legibilidade</li>
+            <li class="problem-item"><span class="problem-dot"></span>Ausência de sinalização em Braille</li>
+            <li class="problem-item"><span class="problem-dot"></span>Posicionamento inadequado</li>
+            <li class="problem-item"><span class="problem-dot"></span>Sem contraste visual suficiente</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ÁREAS DE CIRCULAÇÃO -->
+      <div class="access-card reveal" style="transition-delay:0.48s">
+        <div class="access-card-header">
+          <div class="access-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 12h10M12 7v10"/></svg>
+          </div>
+          <h3 class="access-card-title">Áreas de Circulação</h3>
+        </div>
+        <div class="access-card-body">
+          <ul class="problem-list" aria-label="Problemas comuns em áreas de circulação">
+            <li class="problem-item"><span class="problem-dot"></span>Áreas com desníveis sem demarcação</li>
+            <li class="problem-item"><span class="problem-dot"></span>Piso desgastado com risco de queda</li>
+            <li class="problem-item"><span class="problem-dot"></span>Falta de área de descanso</li>
+            <li class="problem-item"><span class="problem-dot"></span>Iluminação deficiente</li>
+            <li class="problem-item"><span class="problem-dot"></span>Ramificações mal indicadas</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     PATHOLOGIES
+============================== -->
+<section id="patologias" aria-label="Patologias construtivas">
+  <div class="container">
+    <div class="path-header reveal">
+      <div class="section-label" style="justify-content:center">Patologias Construtivas</div>
+      <h2 class="section-title light">Danos estruturais que comprometem a acessibilidade</h2>
+      <p class="section-intro light" style="margin:14px auto 0">Estas manifestações patológicas são as mais frequentes em pontos de acessibilidade e exigem avaliação técnica imediata.</p>
+    </div>
+
+    <div class="path-grid">
+      <div class="path-card reveal" data-num="01" style="transition-delay:0.05s">
+        <svg class="path-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 4L4 18M18 4L32 18M10 26l4-4 4 4 4-4 4 4"/>
+        </svg>
+        <h3>Trincas e Fissuras</h3>
+        <p>Aberturas na superfície de concreto, argamassa ou revestimento que indicam tensões, recalques ou movimentos estruturais.</p>
+      </div>
+
+      <div class="path-card reveal" data-num="02" style="transition-delay:0.1s">
+        <svg class="path-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 6v24M12 12s0 4 6 4 6-4 6-4M8 22s0 5 10 5 10-5 10-5"/>
+          <path d="M6 10c0-2 3-4 12-4s12 2 12 4"/>
+        </svg>
+        <h3>Infiltrações e Umidade</h3>
+        <p>Penetração de água que causa eflorescências, manchas, mofo, corrosão de armaduras e deterioração dos materiais.</p>
+      </div>
+
+      <div class="path-card reveal" data-num="03" style="transition-delay:0.15s">
+        <svg class="path-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 28L12 20l8 4 12-16"/>
+          <path d="M4 28h28"/>
+        </svg>
+        <h3>Desníveis e Recalques</h3>
+        <p>Diferenças de nível não projetadas causadas por movimentação do solo, que tornam o piso irregular e perigoso.</p>
+      </div>
+
+      <div class="path-card reveal" data-num="04" style="transition-delay:0.2s">
+        <svg class="path-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="6" y="10" width="24" height="16" rx="2"/>
+          <path d="M6 18h24M14 10v16"/>
+          <path d="M8 14l4 4M22 14l4 4"/>
+        </svg>
+        <h3>Desgaste Superficial</h3>
+        <p>Erosão progressiva da superfície por uso, intempéries ou materiais inadequados, reduzindo aderência e segurança.</p>
+      </div>
+
+      <div class="path-card reveal" data-num="05" style="transition-delay:0.25s">
+        <svg class="path-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10 26V10l8-4 8 4v16"/>
+          <path d="M6 26h24"/>
+          <path d="M16 26v-8h4v8"/>
+          <path d="M12 14h4M20 14h4"/>
+        </svg>
+        <h3>Falhas de Execução</h3>
+        <p>Problemas oriundos da fase de construção: inclinações erradas, espaçamentos inadequados, fixações impróprias.</p>
+      </div>
+
+      <div class="path-card reveal" data-num="06" style="transition-delay:0.3s">
+        <svg class="path-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="18" cy="18" r="12"/>
+          <path d="M18 10v8l6 4"/>
+          <path d="M10 18H6M30 18h4"/>
+        </svg>
+        <h3>Falta de Manutenção</h3>
+        <p>Ausência de inspeções periódicas e intervenções preventivas que permite a evolução dos problemas existentes.</p>
+      </div>
+
+      <div class="path-card reveal" data-num="07" style="transition-delay:0.35s">
+        <svg class="path-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 28L28 8"/>
+          <path d="M14 8h14v14"/>
+          <circle cx="14" cy="8" r="2" fill="currentColor"/>
+        </svg>
+        <h3>Materiais Deteriorados</h3>
+        <p>Degradação de corrimãos, pisos e revestimentos pela ação do tempo, clima e ausência de proteção superficial.</p>
+      </div>
+
+      <div class="path-card reveal" data-num="08" style="transition-delay:0.4s">
+        <svg class="path-icon" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="6" y="8" width="24" height="20" rx="2"/>
+          <path d="M12 14h12M12 18h8M12 22h10"/>
+          <path d="M28 4v4M8 4v4"/>
+        </svg>
+        <h3>Sinalização Inadequada</h3>
+        <p>Ausência ou deterioração de placas, pictogramas e demarcações que orientam e alertam os usuários.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     CHECKLIST
+============================== -->
+<section id="checklist-section" aria-label="Checklist de inspeção">
+  <div class="container">
+    <div class="checklist-layout">
+      <div class="checklist-sticky">
+        <div class="checklist-info reveal">
+          <div class="section-label">Ferramenta de Inspeção</div>
+          <h2 class="section-title">Checklist de avaliação de acessibilidade</h2>
+          <p>Utilize esta lista de verificação durante a inspeção de pontos de acessibilidade. Cada item representa um aspecto crítico para a segurança e conformidade com a NBR 9050.</p>
+          <p style="margin-top:12px">Marque os itens verificados para acompanhar o progresso da sua inspeção.</p>
+        </div>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.1s">
+        <div class="checklist-card" role="form" aria-label="Checklist de inspeção de acessibilidade">
+          <div class="checklist-card-header">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="14" height="14" rx="2"/>
+              <path d="M7 10l2 2 4-4"/>
+            </svg>
+            <span>Checklist de Inspeção — NBR 9050</span>
+          </div>
+
+          <div class="checklist-items" role="list">
+            <label class="check-item" role="listitem">
+              <input type="checkbox" id="c1" onchange="updateProgress()"/>
+              <span>A rampa possui inclinação adequada (máximo 8,33%)?</span>
+            </label>
+            <label class="check-item" role="listitem">
+              <input type="checkbox" id="c2" onchange="updateProgress()"/>
+              <span>Há trincas, desníveis ou desgaste na superfície da rampa?</span>
+            </label>
+            <label class="check-item" role="listitem">
+              <input type="checkbox" id="c3" onchange="updateProgress()"/>
+              <span>O piso tátil está contínuo e sem obstáculos no percurso?</span>
+            </label>
+            <label class="check-item" role="listitem">
+              <input type="checkbox" id="c4" onchange="updateProgress()"/>
+              <span>Os corrimãos estão firmes, fixos e bem posicionados?</span>
+            </label>
+            <label class="check-item" role="listitem">
+              <input type="checkbox" id="c5" onchange="updateProgress()"/>
+              <span>Os degraus estão regulares, sinalizados e sem desgaste?</span>
+            </label>
+            <label class="check-item" role="listitem">
+              <input type="checkbox" id="c6" onchange="updateProgress()"/>
+              <span>Existem sinais de infiltração, umidade ou deterioração?</span>
+            </label>
+            <label class="check-item" role="listitem">
+              <input type="checkbox" id="c7" onchange="updateProgress()"/>
+              <span>A rota acessível está livre para circulação sem obstáculos?</span>
+            </label>
+            <label class="check-item" role="listitem">
+              <input type="checkbox" id="c8" onchange="updateProgress()"/>
+              <span>A sinalização é visível, legível e compreensível?</span>
+            </label>
+          </div>
+
+          <div class="checklist-footer">
+            <span class="progress-text" id="progress-text" aria-live="polite">0 de 8 itens</span>
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="8">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <button onclick="resetChecklist()" style="font-size:0.72rem;color:var(--steel);background:none;border:none;cursor:pointer;font-family:var(--sans)" aria-label="Reiniciar checklist">Limpar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider dark" style="background:linear-gradient(90deg, transparent, rgba(0,0,0,0.08), transparent)"></div>
+
+<!-- ==============================
+     METHODOLOGY
+============================== -->
+<section id="metodologia" aria-label="Metodologia do projeto">
+  <div class="container">
+    <div class="meto-grid">
+      <div class="reveal">
+        <div class="section-label" style="color:var(--gold)">Como Trabalhamos</div>
+        <h2 class="section-title light">Metodologia do projeto</h2>
+        <p class="section-intro" style="margin-top:14px;margin-bottom:40px">O projeto foi desenvolvido de forma estruturada, combinando pesquisa teórica, observação de campo e produção de material educativo.</p>
+
+        <div class="meto-steps">
+          <div class="meto-step">
+            <div class="meto-step-num">1</div>
+            <div>
+              <h4>Pesquisa Bibliográfica</h4>
+              <p>Revisão das normas ABNT e literatura técnica sobre patologias e acessibilidade.</p>
+            </div>
+          </div>
+          <div class="meto-step">
+            <div class="meto-step-num">2</div>
+            <div>
+              <h4>Estudo de Normas Técnicas</h4>
+              <p>Aprofundamento nas NBR 9050, 16747 e 15575 para embasamento técnico.</p>
+            </div>
+          </div>
+          <div class="meto-step">
+            <div class="meto-step-num">3</div>
+            <div>
+              <h4>Observação de Elementos</h4>
+              <p>Visita aos pontos de acessibilidade para registro e análise visual dos problemas.</p>
+            </div>
+          </div>
+          <div class="meto-step">
+            <div class="meto-step-num">4</div>
+            <div>
+              <h4>Registro Visual dos Problemas</h4>
+              <p>Documentação fotográfica e descritiva das anomalias identificadas.</p>
+            </div>
+          </div>
+          <div class="meto-step">
+            <div class="meto-step-num">5</div>
+            <div>
+              <h4>Análise dos Danos Encontrados</h4>
+              <p>Classificação por tipo de patologia, grau de urgência e impacto na acessibilidade.</p>
+            </div>
+          </div>
+          <div class="meto-step">
+            <div class="meto-step-num">6</div>
+            <div>
+              <h4>Produção de Material Educativo</h4>
+              <p>Criação de folder informativo e apresentação para comunicar o tema com clareza.</p>
+            </div>
+          </div>
+          <div class="meto-step">
+            <div class="meto-step-num">7</div>
+            <div>
+              <h4>Apresentação na Escola</h4>
+              <p>Visita educativa para alunos do ensino médio de escola estadual parceira.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.15s">
+        <div class="section-label" style="color:var(--gold);margin-bottom:28px">Cronograma</div>
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-month">Abril — Fase 1</div>
+            <div class="timeline-title">Pesquisa Teórica</div>
+            <div class="timeline-desc">Revisão bibliográfica, levantamento de normas e conceitos fundamentais sobre engenharia diagnóstica e acessibilidade.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-month">Abril — Fase 2</div>
+            <div class="timeline-title">Levantamento e Observação de Campo</div>
+            <div class="timeline-desc">Visita técnica, registro fotográfico e identificação das manifestações patológicas nos pontos de acessibilidade.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-month">Maio — Fase 3</div>
+            <div class="timeline-title">Análise dos Dados</div>
+            <div class="timeline-desc">Sistematização das informações coletadas, classificação dos danos e elaboração do diagnóstico.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-month">Maio — Fase 4</div>
+            <div class="timeline-title">Criação do Material Educativo</div>
+            <div class="timeline-desc">Desenvolvimento do folder informativo e dos recursos visuais para a apresentação educativa.</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-month">Junho — Fase 5</div>
+            <div class="timeline-title">Apresentação na Escola</div>
+            <div class="timeline-desc">Visita à escola estadual parceira com apresentação do projeto, material educativo e atividade de conscientização.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     EDUCATIONAL MATERIAL
+============================== -->
+<section id="material" aria-label="Material educativo">
+  <div class="container">
+    <div class="edu-layout">
+      <div class="reveal">
+        <div class="section-label">Extensão Universitária</div>
+        <h2 class="section-title">Material Educativo</h2>
+        <p class="section-intro">Para comunicar o tema de forma acessível, o projeto produz um folder informativo destinado a estudantes do ensino médio e ao público geral.</p>
+
+        <div class="edu-features">
+          <div class="edu-feature">
+            <div class="edu-feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 18 18"><circle cx="9" cy="6" r="3"/><path d="M3 16c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+            </div>
+            <div>
+              <h4>O que é acessibilidade?</h4>
+              <p>Conceito de forma simples, com exemplos práticos do dia a dia.</p>
+            </div>
+          </div>
+          <div class="edu-feature">
+            <div class="edu-feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 18 18"><rect x="2" y="2" width="14" height="14" rx="2"/><path d="M5 9l3 3 5-5"/></svg>
+            </div>
+            <div>
+              <h4>O que é Engenharia Diagnóstica?</h4>
+              <p>Explicação da área técnica e sua importância para a segurança das edificações.</p>
+            </div>
+          </div>
+          <div class="edu-feature">
+            <div class="edu-feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 18 18"><path d="M9 2L2 7v9h14V7L9 2z"/><path d="M6 16v-6h6v6"/></svg>
+            </div>
+            <div>
+              <h4>Problemas comuns em pontos de acessibilidade</h4>
+              <p>Exemplos visuais de danos e suas consequências para o usuário.</p>
+            </div>
+          </div>
+          <div class="edu-feature">
+            <div class="edu-feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 18 18"><path d="M3 3h12v12H3z" rx="1"/><path d="M6 9h6M6 12h4M6 6h8"/></svg>
+            </div>
+            <div>
+              <h4>Checklist de observação</h4>
+              <p>Lista prática que qualquer pessoa pode usar para identificar problemas básicos.</p>
+            </div>
+          </div>
+          <div class="edu-feature">
+            <div class="edu-feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 18 18"><path d="M9 1l2.5 5H17l-4.5 4 1.5 5.5L9 13l-5 2.5L5.5 10 1 6h5.5z"/></svg>
+            </div>
+            <div>
+              <h4>Importância da prevenção</h4>
+              <p>Como a inspeção regular evita acidentes, custos e exclusão social.</p>
+            </div>
+          </div>
+        </div>
+
+        <blockquote style="margin-top:36px;padding:20px 24px;border-left:3px solid var(--gold);background:rgba(214,162,58,0.06);border-radius:0 8px 8px 0">
+          <p style="font-family:var(--serif);font-size:1.15rem;color:var(--navy);font-style:italic;line-height:1.5">"Um espaço acessível é um espaço para todos."</p>
+        </blockquote>
+      </div>
+
+      <!-- FOLDER MOCKUP -->
+      <div class="reveal" style="transition-delay:0.15s">
+        <div class="folder-mockup" aria-label="Mockup visual do folder educativo" role="img">
+          <div class="folder-outer">
+            <div class="folder-cover">
+              <div class="folder-top">
+                <div class="folder-logo-text">Universidade FUMEC · Engenharia Civil</div>
+                <div class="folder-divider"></div>
+                <div class="folder-title">Engenharia Diagnóstica e Acessibilidade</div>
+                <div class="folder-sub">Material Educativo — Projeto de Extensão 2025</div>
+
+                <div class="folder-tags">
+                  <span class="folder-tag">Segurança</span>
+                  <span class="folder-tag">Inclusão</span>
+                  <span class="folder-tag">NBR 9050</span>
+                  <span class="folder-tag">Patologias</span>
+                  <span class="folder-tag">Inspeção</span>
+                </div>
+              </div>
+
+              <div class="folder-bottom">
+                <!-- mini visual inside folder -->
+                <svg viewBox="0 0 280 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;margin-top:16px" aria-hidden="true">
+                  <rect x="10" y="20" width="60" height="60" rx="3" fill="rgba(255,255,255,0.04)" stroke="rgba(8,166,218,0.2)" stroke-width="1"/>
+                  <rect x="20" y="30" width="14" height="18" rx="1" fill="rgba(8,166,218,0.1)" stroke="rgba(8,166,218,0.2)" stroke-width="0.8"/>
+                  <rect x="40" y="30" width="14" height="18" rx="1" fill="rgba(8,166,218,0.1)" stroke="rgba(8,166,218,0.2)" stroke-width="0.8"/>
+                  <rect x="26" y="56" width="12" height="22" rx="1" fill="rgba(214,162,58,0.12)" stroke="rgba(214,162,58,0.3)" stroke-width="0.8"/>
+                  <line x1="10" y1="80" x2="70" y2="80" stroke="rgba(214,162,58,0.3)" stroke-width="1"/>
+                  <path d="M70 80 L120 55 L120 80 Z" fill="rgba(214,162,58,0.06)" stroke="rgba(214,162,58,0.3)" stroke-width="1"/>
+                  <line x1="72" y1="78" x2="122" y2="53" stroke="rgba(8,166,218,0.4)" stroke-width="1"/>
+
+                  <rect x="140" y="15" width="130" height="70" rx="4" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                  <line x1="152" y1="30" x2="258" y2="30" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                  <line x1="152" y1="42" x2="240" y2="42" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+                  <line x1="152" y1="54" x2="250" y2="54" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+                  <line x1="152" y1="66" x2="230" y2="66" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+                  <circle cx="148" cy="30" r="3" stroke="rgba(8,166,218,0.5)" stroke-width="1" fill="rgba(8,166,218,0.1)"/>
+                  <circle cx="148" cy="42" r="3" stroke="rgba(214,162,58,0.5)" stroke-width="1" fill="rgba(214,162,58,0.1)"/>
+                  <circle cx="148" cy="54" r="3" stroke="rgba(210,47,34,0.5)" stroke-width="1" fill="rgba(210,47,34,0.1)"/>
+                  <circle cx="148" cy="66" r="3" stroke="rgba(8,166,218,0.5)" stroke-width="1" fill="rgba(8,166,218,0.1)"/>
+                </svg>
+              </div>
+            </div>
+            <div class="folder-accent-bar"></div>
+          </div>
+        </div>
+        <p style="font-size:0.75rem;color:var(--steel);margin-top:16px;text-align:center">Mockup visual do folder educativo</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     REFERENCES
+============================== -->
+<section id="referencias" aria-label="Referências bibliográficas">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Embasamento Técnico</div>
+      <h2 class="section-title">Referências Bibliográficas</h2>
+    </div>
+
+    <div class="ref-grid">
+      <div class="ref-card reveal" style="transition-delay:0.05s">
+        <div class="ref-code">ABNT NBR 9050</div>
+        <p>Acessibilidade a edificações, mobiliário, espaços e equipamentos urbanos. Associação Brasileira de Normas Técnicas, 2020.</p>
+      </div>
+      <div class="ref-card reveal" style="transition-delay:0.10s">
+        <div class="ref-code">ABNT NBR 16747</div>
+        <p>Inspeção Predial — Diretrizes, conceitos, terminologia e procedimento. Associação Brasileira de Normas Técnicas, 2020.</p>
+      </div>
+      <div class="ref-card reveal" style="transition-delay:0.15s">
+        <div class="ref-code">ABNT NBR 15575</div>
+        <p>Edificações habitacionais — Desempenho. Associação Brasileira de Normas Técnicas, 2013.</p>
+      </div>
+      <div class="ref-card reveal" style="transition-delay:0.20s">
+        <div class="ref-code">Helene, Paulo</div>
+        <p>Patologia das Construções — Manual de Reparo, Proteção e Reforço de Estruturas de Concreto.</p>
+      </div>
+      <div class="ref-card reveal" style="transition-delay:0.25s">
+        <div class="ref-code">Thomaz, Ercio</div>
+        <p>Trincas em Edifícios: causas, prevenção e recuperação. São Paulo: PINI/IPT, 1989.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================
+     CONTACT / FOOTER
+============================== -->
+<footer id="contato" role="contentinfo">
+  <div class="container">
+    <div class="contact-grid">
+      <div class="contact-brand reveal">
+        <strong>Engenharia Diagnóstica<br/>& Acessibilidade</strong>
+        <p>Projeto de extensão universitária desenvolvido no curso de Engenharia Civil da Universidade FUMEC, com foco em conscientização, segurança e inclusão.</p>
+
+        <div style="margin-top:28px;display:flex;align-items:center;gap:10px">
+          <div style="background:var(--red);border-radius:4px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 15V10L10 5l6 5v5"/>
+              <path d="M8 15v-4h4v4"/>
+            </svg>
+          </div>
+          <div>
+            <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);letter-spacing:0.08em;text-transform:uppercase">Universidade</div>
+            <div style="font-size:0.88rem;color:rgba(255,255,255,0.82);font-weight:500">FUMEC — Belo Horizonte, MG</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-col reveal" style="transition-delay:0.1s">
+        <h4>Informações do Projeto</h4>
+        <ul>
+          <li>Universidade FUMEC</li>
+          <li>Curso de Engenharia Civil</li>
+          <li>Projeto de Extensão Universitária</li>
+          <li>Disciplina: Extensão — Comunicação e Expressão</li>
+          <li style="margin-top:8px;color:rgba(255,255,255,0.4)">Belo Horizonte — MG</li>
+        </ul>
+      </div>
+
+      <div class="contact-col reveal" style="transition-delay:0.2s">
+        <h4>Contato</h4>
+        <ul>
+          <li>
+            <strong style="font-weight:500;color:rgba(255,255,255,0.7)">Professora:</strong><br/>
+            Sônia de Oliveira Barbosa Andrade
+          </li>
+          <li style="margin-top:12px">
+            <strong style="font-weight:500;color:rgba(255,255,255,0.7)">E-mail do Projeto:</strong><br/>
+            <a href="mailto:engenhariadiagnostica@gmail.com" style="color:var(--gold)">engenhariadiagnostica@gmail.com</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 Universidade FUMEC — Engenharia Civil. Projeto de Extensão Universitária.</p>
+      <div class="footer-tags">
+        <span class="tag tag-navy" style="font-size:0.62rem">Engenharia Civil</span>
+        <span class="tag tag-red" style="font-size:0.62rem">NBR 9050</span>
+        <span class="tag tag-gold" style="font-size:0.62rem">Acessibilidade</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- BACK TO TOP -->
+<button id="back-to-top" aria-label="Voltar ao topo">
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M9 14V4M4 9l5-5 5 5"/>
+  </svg>
+</button>
+
+<!-- ==============================
+     JAVASCRIPT
+============================== -->
+<script>
+  // ——— NAV ACTIVE STATE ———
+  const sections = document.querySelectorAll('section[id], footer[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+        });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // ——— HEADER SCROLL EFFECT ———
+  const header = document.querySelector('.site-header');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+
+  // ——— BACK TO TOP ———
+  const btn = document.getElementById('back-to-top');
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('show', window.scrollY > 500);
+  }, { passive: true });
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  // ——— MOBILE DRAWER ———
+  const hamburger = document.getElementById('hamburger-btn');
+  const drawer = document.getElementById('nav-drawer');
+  const overlay = document.getElementById('drawer-overlay');
+  const close = document.getElementById('drawer-close');
+
+  function openDrawer() {
+    drawer.classList.add('open');
+    overlay.classList.add('open');
+    hamburger.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDrawer() {
+    drawer.classList.remove('open');
+    overlay.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  hamburger.addEventListener('click', openDrawer);
+  close.addEventListener('click', closeDrawer);
+  overlay.addEventListener('click', closeDrawer);
+
+  document.querySelectorAll('.drawer-link').forEach(link => {
+    link.addEventListener('click', closeDrawer);
+  });
+
+  // ——— REVEAL ON SCROLL ———
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+  // ——— CHECKLIST PROGRESS ———
+  function updateProgress() {
+    const total = 8;
+    const checked = document.querySelectorAll('.checklist-items input[type="checkbox"]:checked').length;
+    document.getElementById('progress-text').textContent = `${checked} de ${total} itens`;
+    document.getElementById('progress-fill').style.width = `${(checked / total) * 100}%`;
+    const bar = document.querySelector('.progress-bar');
+    if (bar) {
+      bar.setAttribute('aria-valuenow', checked);
+    }
+  }
+
+  function resetChecklist() {
+    document.querySelectorAll('.checklist-items input[type="checkbox"]').forEach(cb => cb.checked = false);
+    updateProgress();
+  }
+
+  // ——— SMOOTH NAV CLICK CLOSE ———
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', function(e) {
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
